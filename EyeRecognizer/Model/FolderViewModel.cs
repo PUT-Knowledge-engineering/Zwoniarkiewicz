@@ -10,11 +10,21 @@ namespace EyeRecognizer.Model
         public string Name { get; set; }
         public string ShortPath { get; set; }
 
+        //public SpecificType Type { get; set; }
+
+        public bool IsFolder { get; set; }
+
         public FolderViewModel(string shortPath, string name = null)
         {
             ShortPath = shortPath;
             Name = name;
 
+            if (name.Contains(".jpg") || name.Contains(".png"))
+                IsFolder = false;
+            
+            else
+                IsFolder = true;
+            
             Metadata = new PhotoMetadata
             {
                 Name = name,
@@ -25,7 +35,7 @@ namespace EyeRecognizer.Model
             };
         }
 
-        public PhotoMetadata Metadata {get; set; }
+        public PhotoMetadata Metadata { get; set; }
 
         public FolderViewModel()
         {
@@ -44,4 +54,10 @@ namespace EyeRecognizer.Model
 
         public string Size { get; set; }
     }
+}
+
+public enum SpecificType
+{
+    Folder,
+    Photo
 }

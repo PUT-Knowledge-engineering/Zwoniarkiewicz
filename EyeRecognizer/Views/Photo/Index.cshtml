@@ -9,24 +9,43 @@
         <h1 class="page-header">EyeRecognizer</h1>
 
 
-        @foreach (var f in Model)
-        {
-            @if (f.Name.Contains(".jpg"))
+        @*@foreach (var f in Model)
             {
+                @if (f.Name.Contains(".jpg"))
+                {
+                    <div class="col-lg-3 col-md-4 col-xs-6 thumb">
+                        <a class="thumbnail" href="#" data-image-id="" data-toggle="modal" data-title="Im so nice"
+                           data-caption="Photo info: <br/> Directory @f.Metadata.Directory </br/> Name: @f.Metadata.Name </br/> Phase: @f.Metadata.Phase  </br/> Side @f.Metadata.Side <br/> Size @f.Metadata.Size "
+                           data-image="/Photo/GetContent?path=@f.ShortPath" data-target="#image-gallery">
+                            <img class="img-responsive" src="/Photo/GetContent?path=@f.ShortPath" alt="Another alt text">
+                        </a>
+                    </div>
+                }
+                else
+                {
+
+                    <a href="/Photo/DisplayList?path=@f.ShortPath">@f.Name</a>
+                }
+            }*@
+
+        <div data-bind="foreach: viewModel.items">
+            <div data-bind="if: isFolder">
+                <a data-bind="attr : { href :  '/Photo/DisplayList?path=' + shortPath() }, text: shortPath"></a>
+            </div>
+            <div data-bind="ifnot: isFolder">
                 <div class="col-lg-3 col-md-4 col-xs-6 thumb">
-                    <a class="thumbnail" href="#" data-image-id="" data-toggle="modal" data-title="Im so nice"
-                       data-caption="Photo info: <br/> Directory @f.Metadata.Directory </br/> Name: @f.Metadata.Name </br/> Phase: @f.Metadata.Phase  </br/> Side @f.Metadata.Side <br/> Size @f.Metadata.Size "
-                       data-image="/Photo/GetContent?path=@f.ShortPath" data-target="#image-gallery">
-                        <img class="img-responsive" src="/Photo/GetContent?path=@f.ShortPath" alt="Another alt text">
+                    <a class="thumbnail" href="#" data-image-id="" data-toggle="modal" data-title=""
+                       data-bind="attr: { 'data-image': '/Photo/GetContent?path=' + shortPath(),
+                                          'data-caption' : $index,
+                                          'data-title' : name()}"
+                       data-target="#image-gallery">
+
+
+                        <img class="img-responsive" data-bind="attr : { src: '/Photo/GetContent?path=' + shortPath()}" alt="Another alt text">
                     </a>
                 </div>
-            }
-            else
-            {
-
-                <a href="/Photo/DisplayList?path=@f.ShortPath">@f.Name</a>
-            }
-        }
+            </div>
+        </div>
     </div>
 </div>
 
@@ -45,10 +64,22 @@
                     <button type="button" class="btn btn-primary" id="show-previous-image">Previous</button>
                 </div>
                 <div class="col-md-8 text-justify" id="image-gallery-caption">
-                    This text will be overwritten by jQuery
+                    <div class="form-horizontal">
+                        <label for="phase" class="control-label">Faza</label>
+                        <input id="phase" class="form-control" data-bind="value: viewModel.currentPhoto().phase" />
 
+                        <label for="phase" class="control-label">Strona</label>
+                        <input id="phase" class="form-control" data-bind="value: viewModel.currentPhoto().side" />
 
-                    xd
+                        <label for="size" class="control-label">Rozmiar</label>
+                        <input id="size" class="form-control" data-bind="value: viewModel.currentPhoto().size" disabled/>
+
+                        <label for="name" class="control-label">Nazwa</label>
+                        <input id="name" class="form-control" data-bind="value: viewModel.currentPhoto().name" disabled/>
+
+                        <label for="directory" class="control-label">Folder</label>
+                        <input id="directory" class="form-control" data-bind="value: viewModel.currentPhoto().directory" disabled />
+                    </div>
                 </div>
                 <div class="col-md-2">
                     <button type="button" id="show-next-image" class="btn btn-default">Next</button>
@@ -59,9 +90,30 @@
 </div>
 
 @section Scripts {
-    <script type="text/javascript">
-        $(document).ready(function(){
 
+    <script type="text/html" id="metadata">
+        <div class="form-horizontal">
+            <label for="phase" class="control-label">Faza</label>
+            <input id="phase" class="form-control" data-bind="value: phase" />
+        </div>
+    </script>
+
+    <script type="text/javascript">
+        var photoIndex = 0;
+        var viewModel = {
+            items: ko.mapping.fromJS(@Json.Serialize(Model)),
+            currentPhoto: ko.observable()
+        };
+
+        viewModel.currentPhoto(viewModel.items()[photoIndex].metadata);
+        ko.applyBindings(viewModel);
+        //ko.applyBindings(currentModal);
+
+    </script>
+
+    <script type="text/javascript">
+
+        $(document).ready(function(){
             loadGallery(true, 'a.thumbnail');
 
     //This function disables buttons when needed
@@ -73,7 +125,6 @@
             $('#show-previous-image').hide();
         }
     }
-
 
      @*@param setIDs        Sets IDs when DOM is loaded. If using a PHP counter, set to false.
      @param setClickAttr  Sets the attribute for the click handler.*@
@@ -90,6 +141,13 @@
                     previousButton.click();
             }
         });
+
+        var addHiddenDivToBody = function () {
+            var div = document.createElement("div");
+            //div.style.display = "none";
+            document.body.appendChild(div);
+            return div;
+        };
 
     function loadGallery(setIDs, setClickAttr){
             var counter = 0;
@@ -110,7 +168,19 @@
         function updateGallery(selector) {
             var $sel = selector;
             current_image = $sel.data('image-id');
-            $('#image-gallery-caption').html($sel.data('caption'));
+            var vmIndex = $sel.data('caption');
+            photoIndex = vmIndex;
+
+
+            var metadata = viewModel.items()[vmIndex].metadata;
+            //var temporaryDiv = addHiddenDivToBody();
+            console.log(metadata);
+            viewModel.currentPhoto(metadata);
+            //viewModel.currentPhoto.valueHasMutated();
+            //ko.renderTemplate('metadata', metadata, {}, temporaryDiv, 'replaceNode');
+
+
+            //$('#image-gallery-caption').html(name);
             $('#image-gallery-title').text($sel.data('title'));
             $('#image-gallery-image').attr('src', $sel.data('image'));
             disableButtons(counter, $sel.data('image-id'));
