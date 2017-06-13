@@ -1,5 +1,7 @@
-﻿using System;
+﻿using EyeRecognizer.Configuration;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -21,18 +23,19 @@ namespace EyeRecognizer.Model
 
             if (name.Contains(".jpg") || name.Contains(".png"))
                 IsFolder = false;
-            
+
             else
                 IsFolder = true;
-            
-            Metadata = new PhotoMetadata
-            {
-                Name = name,
-                Directory = ShortPath,
-                Side = "L",
-                Phase = 2,
-                Size = "20 kb"
-            };
+
+            if (!IsFolder)
+                Metadata = new PhotoMetadata
+                {
+                    Name = name,
+                    Directory = ShortPath,
+                    Side = "L",
+                    Phase = 2,
+                    Size = (new FileInfo("D:\\#EyePhoto" + "\\" + ShortPath).Length / 1024).ToString() + "kB"
+                };
         }
 
         public PhotoMetadata Metadata { get; set; }

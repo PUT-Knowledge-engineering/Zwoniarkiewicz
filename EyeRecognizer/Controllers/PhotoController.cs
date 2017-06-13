@@ -8,6 +8,8 @@ using EyeRecognizer.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using OpenCvSharp;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
 
 namespace EyeRecognizer.Controllers
 {
@@ -42,6 +44,16 @@ namespace EyeRecognizer.Controllers
                 path = AppSettings.PhotoPath;
             else
                 path = AppSettings.PhotoPath + @"\" + path;
+
+            var jsonPath = path + @"\data.json";
+            if (System.IO.File.Exists(jsonPath))
+            {
+                var jsonFile = System.IO.File.ReadAllText(jsonPath);
+
+                var json = JsonConvert.DeserializeObject<List<FolderViewModel>>(jsonFile);
+                return json;
+            }
+
             var folders = Directory.GetDirectories(path);
             var files = Directory.GetFiles(path);
 
@@ -77,6 +89,18 @@ namespace EyeRecognizer.Controllers
         public IActionResult GetHistogram(string path)
         {
             return File(CreateHistogram(path), "image/png", "histogram.png");
+        }
+
+
+        [HttpPost]
+        public IActionResult Save([FromBody] List<FolderViewModel> photoFolder)
+        {
+
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(photoFolder);
+            var path = AppSettings.PhotoPath + photoFolder[0].ShortPath.Replace(photoFolder[0].Metadata.Name, "") + "\\data.json";
+            System.IO.File.WriteAllText(path, json);
+            return Json(photoFolder);
+
         }
 
         private byte[] CreateHistogram(string path)

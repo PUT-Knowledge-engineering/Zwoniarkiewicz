@@ -49,6 +49,10 @@
     </div>
 </div>
 
+<div>
+    <button onclick="Save()">Zapisz</button>
+</div>
+
 <div class="modal fade" id="image-gallery" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -61,10 +65,10 @@
             </div>
             <div class="modal-footer">
                 <div class="col-md-2">
-                    <button type="button" class="btn btn-primary" id="show-previous-image">Previous</button>
+                    <button type="button" class="btn btn-primary" id="show-previous-image">Poprzednie</button>
                 </div>
                 <div class="col-md-8 text-justify" id="image-gallery-caption">
-                    <div class="form-horizontal">
+                    <div class="form-horizontal" style="margin-left: 20px">
                         <label for="phase" class="control-label">Faza</label>
                         <input id="phase" class="form-control" data-bind="value: viewModel.currentPhoto().phase" />
 
@@ -72,17 +76,17 @@
                         <input id="phase" class="form-control" data-bind="value: viewModel.currentPhoto().side" />
 
                         <label for="size" class="control-label">Rozmiar</label>
-                        <input id="size" class="form-control" data-bind="value: viewModel.currentPhoto().size" disabled/>
+                        <input id="size" class="form-control" data-bind="value: viewModel.currentPhoto().size" disabled />
 
                         <label for="name" class="control-label">Nazwa</label>
-                        <input id="name" class="form-control" data-bind="value: viewModel.currentPhoto().name" disabled/>
+                        <input id="name" class="form-control" data-bind="value: viewModel.currentPhoto().name" disabled />
 
                         <label for="directory" class="control-label">Folder</label>
                         <input id="directory" class="form-control" data-bind="value: viewModel.currentPhoto().directory" disabled />
                     </div>
                 </div>
                 <div class="col-md-2">
-                    <button type="button" id="show-next-image" class="btn btn-default">Next</button>
+                    <button type="button" id="show-next-image" class="btn btn-default">Nastepne</button>
                 </div>
             </div>
         </div>
@@ -107,95 +111,101 @@
 
         viewModel.currentPhoto(viewModel.items()[photoIndex].metadata);
         ko.applyBindings(viewModel);
-        //ko.applyBindings(currentModal);
 
     </script>
 
     <script type="text/javascript">
 
-        $(document).ready(function(){
+        $(document).ready(function () {
             loadGallery(true, 'a.thumbnail');
 
-    //This function disables buttons when needed
-    function disableButtons(counter_max, counter_current){
-        $('#show-previous-image, #show-next-image').show();
-        if(counter_max == counter_current){
-            $('#show-next-image').hide();
-        } else if (counter_current == 1){
-            $('#show-previous-image').hide();
-        }
-    }
+            //This function disables buttons when needed
+            function disableButtons(counter_max, counter_current) {
+                $('#show-previous-image, #show-next-image').show();
+                if (counter_max == counter_current) {
+                    $('#show-next-image').hide();
+                } else if (counter_current == 1) {
+                    $('#show-previous-image').hide();
+                }
+            }
 
      @*@param setIDs        Sets IDs when DOM is loaded. If using a PHP counter, set to false.
      @param setClickAttr  Sets the attribute for the click handler.*@
 
-        $(document).bind('keyup', function (e) {
-            if (e.which == 39) {
-                var nextButton = $('#show-next-image');
-                if (nextButton.is(":visible"))
-                    nextButton.click();
-            }
-            else if (e.which == 37) {
-                var previousButton = $('#show-previous-image');
-                if (previousButton.is(":visible"))
-                    previousButton.click();
-            }
-        });
-
-        var addHiddenDivToBody = function () {
-            var div = document.createElement("div");
-            //div.style.display = "none";
-            document.body.appendChild(div);
-            return div;
-        };
-
-    function loadGallery(setIDs, setClickAttr){
-            var counter = 0;
-            var current_image, selector;
-
-
-        $('#show-next-image, #show-previous-image').click(function(){
-            if($(this).attr('id') == 'show-previous-image'){
-                current_image--;
-            } else {
-                current_image++;
-            }
-
-            selector = $('[data-image-id="' + current_image + '"]');
-            updateGallery(selector);
-        });
-
-        function updateGallery(selector) {
-            var $sel = selector;
-            current_image = $sel.data('image-id');
-            var vmIndex = $sel.data('caption');
-            photoIndex = vmIndex;
-
-
-            var metadata = viewModel.items()[vmIndex].metadata;
-            //var temporaryDiv = addHiddenDivToBody();
-            console.log(metadata);
-            viewModel.currentPhoto(metadata);
-            //viewModel.currentPhoto.valueHasMutated();
-            //ko.renderTemplate('metadata', metadata, {}, temporaryDiv, 'replaceNode');
-
-
-            //$('#image-gallery-caption').html(name);
-            $('#image-gallery-title').text($sel.data('title'));
-            $('#image-gallery-image').attr('src', $sel.data('image'));
-            disableButtons(counter, $sel.data('image-id'));
-        }
-
-        if(setIDs == true){
-            $('[data-image-id]').each(function(){
-                counter++;
-                $(this).attr('data-image-id',counter);
+            $(document).bind('keyup', function (e) {
+                if (e.which == 39) {
+                    var nextButton = $('#show-next-image');
+                    if (nextButton.is(":visible"))
+                        nextButton.click();
+                }
+                else if (e.which == 37) {
+                    var previousButton = $('#show-previous-image');
+                    if (previousButton.is(":visible"))
+                        previousButton.click();
+                }
             });
-        }
-        $(setClickAttr).on('click',function(){
-            updateGallery($(this));
+
+            var addHiddenDivToBody = function () {
+                var div = document.createElement("div");
+                //div.style.display = "none";
+                document.body.appendChild(div);
+                return div;
+            };
+
+            function loadGallery(setIDs, setClickAttr) {
+                var counter = 0;
+                var current_image, selector;
+
+
+                $('#show-next-image, #show-previous-image').click(function () {
+                    if ($(this).attr('id') == 'show-previous-image') {
+                        current_image--;
+                    } else {
+                        current_image++;
+                    }
+
+                    selector = $('[data-image-id="' + current_image + '"]');
+                    updateGallery(selector);
+                });
+
+                function updateGallery(selector) {
+                    var $sel = selector;
+                    current_image = $sel.data('image-id');
+                    photoIndex = $sel.data('caption');
+
+                    var metadata = viewModel.items()[photoIndex].metadata;
+                    viewModel.currentPhoto(metadata);
+
+                    $('#image-gallery-title').text($sel.data('title'));
+                    $('#image-gallery-image').attr('src', $sel.data('image'));
+                    disableButtons(counter, $sel.data('image-id'));
+                }
+
+                if (setIDs == true) {
+                    $('[data-image-id]').each(function () {
+                        counter++;
+                        $(this).attr('data-image-id', counter);
+                    });
+                }
+                $(setClickAttr).on('click', function () {
+                    updateGallery($(this));
+                });
+            }
+
+
+
         });
-    }
-});
+
+                function Save() {
+                $.ajax({
+                    url: '/Photo/Save',
+                type: "POST",
+                data: ko.toJSON(viewModel.items),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function () {
+                    }
+                });
+            };
     </script>
 }

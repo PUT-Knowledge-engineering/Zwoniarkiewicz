@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Serialization;
 
 namespace EyeRecognizer
 {
@@ -29,10 +30,12 @@ namespace EyeRecognizer
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-            services.AddMvc();
+            services.AddMvc().AddJsonOptions(options => options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver());
 
             // Added - uses IOptions<T> for your settings.
             services.AddOptions();
+
+            //services.
 
             // Added - Confirms that we have a home for our DemoSettings
             services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
